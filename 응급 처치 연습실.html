@@ -1,0 +1,520 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>응급 처치 연습실</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 레이아웃: 홈(활동 카드 + 기록판) → 활동 화면(뒤로가기 + 한 가지 과제). 구급상자 초록을 주색, 위급 신호는 빨강으로만 쓴다. */
+:root{
+  --bg:#eef5f2; --surface:#ffffff; --ink:#13302a; --muted:#53706a; --line:#cde0d9;
+  --green:#0b8a69; --on-green:#ffffff; --green-soft:#d8f0e6;
+  --red:#cf3530; --red-soft:#fde5e3;
+  --sun:#c98a00; --sun-soft:#fff2cc;
+  --blue:#2a67c9; --blue-soft:#dde8fb;
+  --display:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1a17; --surface:#16251f; --ink:#e6f3ee; --muted:#9ab5ac; --line:#2a4039;
+    --green:#3fcf9f; --on-green:#06241a; --green-soft:#123428;
+    --red:#ff7f78; --red-soft:#3a1d1b;
+    --sun:#f5c542; --sun-soft:#3a3112;
+    --blue:#7fb0ff; --blue-soft:#17294a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1a17; --surface:#16251f; --ink:#e6f3ee; --muted:#9ab5ac; --line:#2a4039;
+  --green:#3fcf9f; --on-green:#06241a; --green-soft:#123428;
+  --red:#ff7f78; --red-soft:#3a1d1b;
+  --sun:#f5c542; --sun-soft:#3a3112;
+  --blue:#7fb0ff; --blue-soft:#17294a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:400 16px/1.65 var(--body);
+  padding-block:18px 56px;
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.wrap{max-width:860px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;line-height:1.25}
+h2{font-size:1.9rem}
+h3{font-size:1.2rem}
+p{margin:0}
+.lead{color:var(--muted);margin-top:6px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:1.2rem;color:var(--ink);text-decoration:none}
+.mark{width:34px;height:34px;border-radius:9px;background:var(--green);position:relative;flex:none}
+.mark::before,.mark::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--on-green);border-radius:2px}
+.mark::before{width:18px;height:6px}
+.mark::after{width:6px;height:18px}
+.back{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);text-decoration:none;font-weight:500;font-size:.95rem}
+.stack{display:flex;flex-direction:column;gap:16px}
+.hero h1{font-size:clamp(2.1rem,7vw,3.2rem)}
+.hero p{margin-top:8px;color:var(--muted);max-width:34em}
+.alert{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--red-soft);border:1px solid var(--red);border-radius:14px;padding:14px 18px}
+.alert .n{font-family:var(--display);font-size:2.2rem;line-height:1;color:var(--red)}
+.alert p{flex:1 1 220px;min-width:0}
+.badge{display:flex;align-items:center;gap:12px;background:var(--sun-soft);border:1px solid var(--sun);border-radius:14px;padding:14px 18px}
+.badge b{font-family:var(--display);font-weight:400;font-size:1.25rem}
+.acts{display:grid;grid-template-columns:1fr;gap:14px}
+.act{display:flex;flex-direction:column;text-align:left;padding:0;border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden;text-decoration:none;color:var(--ink)}
+.act:hover{border-color:var(--green)}
+.act .art{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;font-size:2rem;line-height:1}
+.act .body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.act p{color:var(--muted);font-size:.95rem}
+.pill{align-self:flex-start;margin-top:4px;padding:3px 12px;border-radius:999px;font-size:.85rem;font-weight:700;background:var(--green-soft);color:var(--ink)}
+.t-green{background:var(--green-soft)}.t-blue{background:var(--blue-soft)}.t-sun{background:var(--sun-soft)}.t-red{background:var(--red-soft)}
+@media (min-width:640px){
+  .acts{grid-template-columns:1fr 1fr}
+  .act:last-child{grid-column:1/-1}
+}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:320px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);font-size:.95rem}
+th{font-weight:700;color:var(--muted);font-size:.85rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:42px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:500;font-size:.95rem}
+.chip.on{background:var(--green);border-color:var(--green);color:var(--on-green);font-weight:700}
+.scene{background:var(--sun-soft);border:1px solid var(--sun);border-radius:14px;padding:14px 18px}
+.scene small{display:block;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:2px}
+.rows{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.slot,.stepcard{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;min-height:56px;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface)}
+.slot.empty{border-style:dashed;color:var(--muted);align-items:center;background:transparent}
+.slot.filled{border-color:var(--green)}
+.slot.good{background:var(--green-soft);border-color:var(--green)}
+.slot.bad{background:var(--red-soft);border-color:var(--red);animation:shake .4s}
+.stepcard:hover{border-color:var(--blue)}
+.num{flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--green);color:var(--on-green);font-weight:700;font-size:.9rem}
+.slot.empty .num{background:var(--line);color:var(--muted)}
+.todo .num{background:var(--line);color:var(--muted)}
+.label{font-weight:700;font-size:.85rem;color:var(--muted);letter-spacing:.06em;margin-bottom:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:12px;border:2px solid var(--green);background:var(--green);color:var(--on-green);font-weight:700;text-decoration:none}
+.btn:disabled{background:var(--line);border-color:var(--line);color:var(--muted)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.fb{border-radius:12px;padding:12px 16px;border:1px solid var(--line);background:var(--surface)}
+.fb.good{background:var(--green-soft);border-color:var(--green)}
+.fb.bad{background:var(--red-soft);border-color:var(--red)}
+.fb.early{background:var(--sun-soft);border-color:var(--sun)}
+.fb b{display:block}
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.tool{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:104px;text-align:left;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface)}
+.tool:hover:not(:disabled){border-color:var(--blue)}
+.tool .ti{font-size:1.7rem;line-height:1}
+.tool.used{background:var(--green-soft);border-color:var(--green);opacity:.75}
+.stars{font-size:1.6rem;color:var(--sun);letter-spacing:.1em}
+.bar{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green)}
+.qmeta{display:flex;justify-content:space-between;gap:12px;font-weight:700;color:var(--muted);font-size:.9rem}
+.q{font-family:var(--display);font-size:1.45rem;line-height:1.4;text-wrap:balance}
+.opt{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:12px;border:2px solid var(--line);background:var(--surface)}
+.opt:hover:not(:disabled){border-color:var(--blue)}
+.opt.good{background:var(--green-soft);border-color:var(--green)}
+.opt.bad{background:var(--red-soft);border-color:var(--red)}
+.ox{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.oxb{min-height:96px;border-radius:16px;border:2px solid var(--line);background:var(--surface);font-family:var(--display);font-size:3rem;line-height:1}
+.oxb.o{color:var(--green)}.oxb.x{color:var(--red)}
+.oxb:hover:not(:disabled){border-color:var(--blue)}
+.oxb.good{background:var(--green-soft);border-color:var(--green)}
+.oxb.bad{background:var(--red-soft);border-color:var(--red)}
+.statement{font-family:var(--display);font-size:1.4rem;line-height:1.45;text-wrap:balance}
+.big{font-family:var(--display);font-size:3rem;line-height:1}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:.85rem;font-weight:700;color:var(--muted)}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+textarea{min-height:76px;resize:vertical}
+.names{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.role{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.role .who{font-family:var(--display);font-size:1.25rem}
+.role .as{font-weight:700;font-size:.85rem;color:var(--green)}
+.role .line{border-radius:10px;background:var(--bg);padding:10px 12px}
+.checks{display:flex;flex-direction:column;gap:8px}
+.checks label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.checks input{width:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--green)}
+.note{font-size:.9rem;color:var(--muted)}
+.split{display:flex;flex-direction:column;gap:16px}
+.split>*{min-width:0}
+.homehead{display:flex;flex-direction:column;gap:16px}
+.recline{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;display:flex;flex-direction:column;gap:2px}
+.stat span{font-size:.85rem;font-weight:700;color:var(--muted)}
+.stat b{font-family:var(--display);font-weight:400;font-size:1.9rem;line-height:1.2}
+.hist{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.cur{background:var(--green-soft)}
+td.me{font-weight:700}
+.line.watch{color:var(--muted)}
+@media (min-width:900px),(min-width:720px) and (orientation:landscape){
+  body{font-size:18px}
+  .wrap{max-width:1180px}
+  h2{font-size:2.2rem}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .homehead{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:center}
+  .acts{grid-template-columns:repeat(6,1fr)}
+  .act{grid-column:span 2}
+  .act:nth-child(n+4),.act:last-child{grid-column:span 3}
+  .slot,.stepcard{min-height:64px;padding:14px 16px}
+  .opt{padding:16px 18px}
+  .tool{min-height:120px}
+  .btn{min-height:54px}
+  .oxb{min-height:130px}
+}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.slot.bad{animation:none}}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+(function(){
+'use strict';
+var app=document.getElementById('app');
+var KEY='emergency-practice-v1';
+var P={order:{},tools:{},quiz:0,ox:0,role:{}};
+try{var raw=localStorage.getItem(KEY);if(raw){var o=JSON.parse(raw);if(o&&typeof o==='object'){P=Object.assign(P,o);}}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}}
+function fix(){P.hist=P.hist||{quiz:[],ox:[]};P.hist.quiz=P.hist.quiz||[];P.hist.ox=P.hist.ox||[];P.names=P.names||['','','','','',''];P.name=P.name||'';}
+fix();
+function logHist(k,sc){var d=new Date();P.hist[k].push({d:(d.getMonth()+1)+'/'+d.getDate(),s:sc});if(P.hist[k].length>8)P.hist[k].shift();}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+/* ---------- 교과서 내용 ---------- */
+var SITS=[
+{id:'cut',name:'상처가 났을 때',scene:'운동장에서 넘어져 무릎에 상처가 났어요. 흙이 묻어 있고 피가 나요.',
+ steps:['이물질이 묻은 상처는 깨끗한 물이나 생리 식염수로 씻어요.','출혈이 심할 때는 상처 부위를 5분 이상 눌러 지혈해요.','상처 부위가 온전히 밀착되도록 거즈나 밴드를 붙여요.'],
+ why:'먼저 물로 씻어 이물질을 없애고, 피가 나면 눌러서 멈춘 뒤 거즈나 밴드로 덮어요. 상처를 촉촉하게 유지하면 딱지가 생기지 않고 흉터 가능성도 줄어요.',
+ tools:[
+  {i:'🚰',t:'흐르는 깨끗한 물로 씻기',s:0},
+  {i:'🤚',t:'거즈로 5분 이상 눌러 지혈하기',s:1},
+  {i:'🩹',t:'거즈나 밴드를 밀착해서 붙이기',s:2},
+  {i:'🧴',t:'소독약을 바로 뿌리기',s:-1,why:'소독약은 세균뿐 아니라 상처 치유에 필요한 정상 세포도 없앨 수 있어요. 먼저 깨끗한 물로 씻고, 소독약은 상처가 크고 감염 위험이 높을 때만 써요.'},
+  {i:'☀️',t:'상처를 그대로 두고 말리기',s:-1,why:'상처가 건조해져 딱지가 생기면 피부 재생이 늦어지고 흉터가 남기 쉬워요. 촉촉하게 유지해요.'}
+ ]},
+{id:'burn',name:'화상을 입었을 때',scene:'요리 시간에 뜨거운 냄비에 손이 닿아 손등이 빨갛게 부었어요.',
+ steps:['흐르는 찬물에 상처 부위를 대어 10분 이상 충분히 열기를 식혀요.','화상 부위의 열기가 완전히 식은 후에 화상 연고를 발라요.','화상 부위에 물집이 생긴 경우 터뜨리지 않고 거즈로 덮어 보호해요.'],
+ why:'먼저 열기를 충분히 식히고, 식은 뒤에 연고를 발라요. 물집은 터뜨리지 않고 거즈로 덮어 보호해요.',
+ tools:[
+  {i:'🚰',t:'흐르는 찬물에 10분 이상 식히기',s:0},
+  {i:'🧴',t:'화상 연고 바르기',s:1,early:'열기가 완전히 식은 뒤에 연고를 발라요. 먼저 해야 할 일이 남아 있어요.'},
+  {i:'🩹',t:'거즈로 덮어 보호하기',s:2},
+  {i:'🫧',t:'물집을 터뜨리기',s:-1,why:'물집은 터뜨리지 않고 거즈로 덮어 보호해요.'},
+  {i:'🥫',t:'된장이나 기름 바르기',s:-1,why:'소주, 기름, 된장을 바르는 민간요법은 상처를 악화시키고 감염을 일으킬 수 있어요. 절대 사용하지 않아요.'}
+ ]},
+{id:'eye',name:'눈에 이물질이 들어갔을 때',scene:'바람이 많이 부는 날, 눈에 먼지가 들어가서 눈이 따가워요.',
+ steps:['손으로 눈을 비비지 말고, 눈을 깜빡거려 눈물과 함께 자연스럽게 이물질이 빠져나오도록 해요.','눈을 깜빡이고 눈물을 흘려도 이물질이 빠져나오지 않는 경우에는 흐르는 물에 가볍게 씻어요.','화학 약품이 눈에 들어간 경우에는 흐르는 물에 20분 이상 씻은 후 병원에 가요.'],
+ why:'눈은 비비지 않고 깜빡이는 것부터 시작해요. 안 빠지면 흐르는 물로 가볍게 씻고, 화학 약품이 들어갔다면 20분 이상 씻은 뒤 병원에 가요.',
+ tools:[
+  {i:'😉',t:'손으로 비비지 않고 눈을 깜빡이기',s:0},
+  {i:'🚰',t:'흐르는 물에 가볍게 씻기',s:1},
+  {i:'🏥',t:'그래도 안 빠지거나 아프면 병원에 가기',s:2},
+  {i:'✋',t:'손으로 눈을 비비기',s:-1,why:'비비면 눈이 더 다칠 수 있어요. 눈을 깜빡여 눈물과 함께 이물질이 나오게 해요.'}
+ ]},
+{id:'nose',name:'코피가 날 때',scene:'수업 시간에 갑자기 코피가 났어요.',
+ steps:['고개를 앞으로 숙여서 휴지로 코를 막아요.','엄지와 검지로 콧방울을 눌러 피가 멈출 때까지 지혈해요.','피가 목으로 넘어가려고 하면 삼키지 말고 뱉어 내요.'],
+ why:'고개는 뒤로 젖히지 않고 앞으로 숙여요. 피가 기도로 넘어갈 수 있고, 삼키면 구역질이 날 수 있어요. 30분 이상 멈추지 않으면 병원에 가요.',
+ tools:[
+  {i:'🙇',t:'고개를 앞으로 숙이고 휴지로 코 막기',s:0},
+  {i:'👃',t:'엄지와 검지로 콧방울을 눌러 지혈하기',s:1},
+  {i:'🚰',t:'피가 목으로 넘어가면 삼키지 않고 뱉기',s:2},
+  {i:'🙆',t:'고개를 뒤로 젖히기',s:-1,why:'고개를 뒤로 젖히면 피가 기도로 넘어갈 수 있어요. 고개는 앞으로 숙여요.'}
+ ]},
+{id:'bee',name:'벌에 쏘였을 때',scene:'공원에서 벌에 쏘였어요. 쏘인 곳에 벌침이 보여요.',
+ steps:['딱딱한 종이나 카드로 벌침을 살살 밀어 뽑아 내요.','벌에 쏘인 부위를 비눗물로 씻어 내요.','벌에 쏘인 부위를 얼음찜질 해요.'],
+ why:'벌침은 카드로 살살 밀어 뽑고, 비눗물로 씻은 뒤 얼음찜질을 해요. 숨쉬기 어렵거나 어지러우면 바로 병원에 가요.',
+ tools:[
+  {i:'🪪',t:'딱딱한 카드로 벌침을 살살 밀어 뽑기',s:0},
+  {i:'🧼',t:'비눗물로 씻기',s:1},
+  {i:'🧊',t:'얼음찜질하기',s:2},
+  {i:'🤏',t:'손가락이나 집게로 벌침 뽑기',s:-1,why:'손가락이나 집게로 뽑으면 벌침 안의 독이 몸 안으로 들어갈 수 있어요. 카드로 살살 밀어 뽑아요.'}
+ ]},
+{id:'tooth',name:'치아를 다쳤을 때',scene:'넘어져서 앞니가 빠졌어요. 이가 바닥에 떨어져 있어요.',
+ steps:['치아가 빠지거나 부러진 경우에는 치아를 찾아요.','빠진 치아를 만질 때는 뿌리 부분을 만지거나 씻지 않아요.','식염수나 우유에 치아를 담아 즉시 치과에 가요.'],
+ why:'치아를 찾아 뿌리를 만지지 않고 조심히 다뤄요. 식염수나 우유에 담아 바로 치과에 가요.',
+ tools:[
+  {i:'🔍',t:'빠진 치아를 찾기',s:0},
+  {i:'🦷',t:'뿌리를 만지지 않고 조심히 잡기',s:1},
+  {i:'🥛',t:'식염수나 우유에 담아 바로 치과에 가기',s:2},
+  {i:'🚰',t:'수돗물로 문질러 깨끗이 씻기',s:-1,why:'치아를 문지르거나 씻으면 붙어 있는 조직이 다칠 수 있어요. 뿌리 부분은 만지지도 씻지도 않아요.'}
+ ]},
+{id:'head',name:'머리를 다쳤을 때',scene:'단단한 공에 머리를 맞았어요. 이마에 상처가 있고, 코에서 맑은 물이 흘러요.',
+ steps:['상처가 있다면 상처 부위를 깨끗이 닦아요.','물체에 부딪힌 부위에 얼음찜질을 해요.','의식이 없거나 코에서 투명한 물이 흐르면 즉시 병원에 가요.'],
+ why:'상처를 닦고 얼음찜질을 해요. 의식이 없거나 코에서 투명한 물이 흐르면 즉시 병원에 가야 해요.',
+ tools:[
+  {i:'🧻',t:'상처 부위를 깨끗이 닦기',s:0},
+  {i:'🧊',t:'부딪힌 부위에 얼음찜질하기',s:1},
+  {i:'📞',t:'119에 알리고 즉시 병원에 가기',s:2},
+  {i:'⚽',t:'괜찮다고 하고 계속 뛰어놀기',s:-1,why:'머리를 다친 뒤 의식이 없거나 코에서 투명한 물이 흐르면 즉시 병원에 가야 해요.'}
+ ]}
+];
+function sit(id){for(var i=0;i<SITS.length;i++){if(SITS[i].id===id)return SITS[i];}return SITS[0];}
+
+var QUIZ=[
+{q:'응급 처치는 무엇일까요?',a:'병원에 가기 전까지 현장에서 할 수 있는 가장 빠르고 적절한 조치',w:['병원에서 의사가 하는 수술','다친 지 며칠 뒤에 하는 치료','약국에서 약을 사 먹는 일'],e:'응급 처치는 의료 기관으로 이송하기 전까지 현장에서 하는 조치예요. 통증을 줄이고 더 이상의 손상을 막아요.'},
+{q:'무릎에 흙이 묻은 상처가 났어요. 가장 먼저 할 일은?',a:'깨끗한 물이나 생리 식염수로 씻기',w:['소독약부터 뿌리기','밴드부터 붙이기','상처를 그대로 말리기'],e:'이물질이 묻은 상처는 먼저 깨끗한 물이나 생리 식염수로 씻어 내요.'},
+{q:'피가 많이 날 때 지혈은 어떻게 할까요?',a:'상처 부위를 5분 이상 눌러요',w:['살짝 눌렀다가 바로 떼요','상처 부위를 문질러요','상처를 그냥 지켜봐요'],e:'출혈이 심할 때는 상처 부위를 5분 이상 눌러 지혈해요.'},
+{q:'상처를 촉촉하게 유지하면 어떤 점이 좋을까요?',a:'딱지가 생기지 않고 흉터가 생길 가능성이 줄어요',w:['상처가 빨리 말라서 딱딱해져요','피부 재생이 늦어져요','아무 변화가 없어요'],e:'촉촉한 상태에서는 피부 재생이 원활해서 딱지가 생기지 않고 흉터 가능성도 줄어들어요.'},
+{q:'소독약은 언제 사용할까요?',a:'상처 범위가 크고 병균에 감염될 위험이 높을 때',w:['상처가 나면 무조건 가장 먼저','상처가 아주 작을 때만','소독약은 절대 쓰지 않아요'],e:'소독약은 정상 세포도 함께 없앨 수 있어서, 상처 범위가 크고 감염 위험이 높을 때 사용해요.'},
+{q:'손에 화상을 입었어요. 먼저 할 일은?',a:'흐르는 찬물에 10분 이상 식혀요',w:['된장을 발라요','바로 연고를 발라요','물집을 터뜨려요'],e:'먼저 흐르는 찬물로 10분 이상 열기를 식혀요. 연고는 열기가 완전히 식은 뒤에 발라요.'},
+{q:'화상 부위에 물집이 생겼어요. 어떻게 할까요?',a:'터뜨리지 않고 거즈로 덮어 보호해요',w:['바늘로 터뜨려 물을 빼요','물집 위에 기름을 발라요','물집을 계속 눌러 봐요'],e:'물집은 터뜨리지 않고 거즈로 덮어 보호해요.'},
+{q:'눈에 먼지가 들어갔어요. 어떻게 할까요?',a:'손으로 비비지 않고 눈을 깜빡여요',w:['손으로 세게 비벼요','손가락으로 꺼내요','휴지로 눈 안을 닦아요'],e:'눈을 비비지 말고 깜빡여서 눈물과 함께 이물질이 빠져나오게 해요.'},
+{q:'화학 약품이 눈에 들어갔어요. 어떻게 할까요?',a:'흐르는 물에 20분 이상 씻은 뒤 병원에 가요',w:['눈을 깜빡이며 기다려요','1분만 씻고 괜찮으면 끝내요','손으로 비벼서 닦아요'],e:'화학 약품이 눈에 들어가면 흐르는 물에 20분 이상 씻은 후 병원에 가요.'},
+{q:'코피가 날 때 알맞은 자세는?',a:'고개를 앞으로 숙이고 콧방울을 눌러요',w:['고개를 뒤로 젖히고 누워요','고개를 뒤로 젖히고 휴지로 막아요','피를 계속 삼켜요'],e:'고개를 뒤로 젖히면 피가 기도로 넘어갈 수 있어요. 앞으로 숙이고 엄지와 검지로 콧방울을 눌러요.'},
+{q:'벌에 쏘였어요. 벌침은 어떻게 뽑을까요?',a:'딱딱한 종이나 카드로 살살 밀어 뽑아요',w:['손가락으로 꼭 집어 뽑아요','집게로 집어 뽑아요','그대로 두고 문질러요'],e:'손가락이나 집게로 뽑으면 벌침 안의 독이 몸 안으로 들어갈 수 있어요.'},
+{q:'넘어져서 이가 빠졌어요. 어떻게 할까요?',a:'뿌리를 만지지 않고 식염수나 우유에 담아 치과에 가요',w:['뿌리 부분을 잡고 비벼 닦아요','수돗물로 문질러 씻어요','그냥 버리고 괜찮다고 해요'],e:'빠진 치아는 뿌리 부분을 만지거나 씻지 않고, 식염수나 우유에 담아 즉시 치과에 가요.'},
+{q:'다음 중 머리를 다친 뒤 바로 병원에 가야 하는 경우는?',a:'코나 귀에서 피 또는 맑은 물이 흘러요',w:['목이 조금 말라요','배가 고파요','친구와 더 놀고 싶어요'],e:'머리가 심하게 아프거나, 토하거나, 잠깐 기절했거나, 코나 귀에서 피 또는 맑은 물이 흐르거나, 물체가 흐릿하게 보이면 즉시 병원에 가요.'},
+{q:'반쯤 빠진 치아는 어떻게 할까요?',a:'빼지 않고 제자리에 붙인 채 치과에 가요',w:['마저 빼서 휴지에 싸요','손으로 흔들어서 빼요','물로 씻어 낸 뒤 버려요'],e:'반쯤 빠진 치아는 빼지 않고 제자리에 그대로 붙인 상태에서 치과에 가서 고정해요.'},
+{q:'응급 상황이 생기면 어떻게 할까요?',a:'침착하게 주변에 도움을 구하고, 필요하면 119에 도움을 요청해요',w:['혼자 해결하려고 아무에게도 말하지 않아요','당황해서 그냥 지켜만 봐요','아무도 부르지 않고 기다려요'],e:'주변 사람들이 함께 대처하면 더 신속하고 효과적으로 응급 처치를 할 수 있어요.'}
+];
+
+var OXQ=[
+{s:'상처가 나면 물로 씻지 말고, 바로 소독액을 뿌리고 거즈를 덮는다.',a:false,e:'먼저 깨끗한 물이나 생리 식염수로 씻어요. 소독약은 상처 범위가 크고 감염 위험이 높을 때 사용해요.'},
+{s:'화상 부위는 흐르는 찬물로 10분 이상 충분히 식힌다.',a:true,e:'열기를 충분히 식힌 뒤에 화상 연고를 발라요.'},
+{s:'코피가 날 때는 고개를 뒤로 젖히고 휴지로 코를 막는다.',a:false,e:'고개를 앞으로 숙여요. 뒤로 젖히면 피가 기도로 넘어갈 수 있어요.'},
+{s:'벌침은 손가락이나 집게로 뽑는 것이 가장 좋다.',a:false,e:'독이 몸 안으로 들어갈 수 있어요. 딱딱한 카드로 살살 밀어 뽑아요.'},
+{s:'빠진 치아는 뿌리 부분을 만지지 않고 식염수나 우유에 담아 치과에 간다.',a:true,e:'뿌리 부분은 만지거나 씻지 않아요.'},
+{s:'눈에 이물질이 들어가면 손으로 비벼서 빼낸다.',a:false,e:'비비지 말고 눈을 깜빡여 눈물과 함께 나오게 해요.'},
+{s:'화상 부위에 물집이 생기면 터뜨려서 물을 뺀다.',a:false,e:'물집은 터뜨리지 않고 거즈로 덮어 보호해요.'},
+{s:'머리를 다친 뒤 코에서 맑은 물이 흐르면 즉시 병원에 간다.',a:true,e:'의식이 없거나 코에서 투명한 물이 흐르면 즉시 병원에 가야 해요.'},
+{s:'코피가 목으로 넘어가려고 하면 삼키지 않고 뱉어 낸다.',a:true,e:'삼키면 위를 자극해서 구역질이 날 수 있어요.'},
+{s:'화상에는 된장이나 기름을 바르면 도움이 된다.',a:false,e:'소주, 기름, 된장 같은 민간요법은 상처를 악화시키고 감염을 일으킬 수 있어요.'},
+{s:'응급 처치를 한 뒤에는 다친 정도에 따라 병원 진료를 받는다.',a:true,e:'필요하다고 판단되면 병원 진료를 받아요.'},
+{s:'상처 부위를 촉촉하게 유지하면 흉터가 생길 가능성이 줄어든다.',a:true,e:'딱지가 생기지 않고 피부 재생이 원활해져요.'}
+];
+
+var ROLES=['다친 친구','발견한 친구','처치를 돕는 친구','도와주는 어른','도움을 요청하는 친구','관찰하는 친구'];
+var ROLE_S=['다친 친구','발견한 친구','돕는 친구','어른','도움 요청','관찰'];
+var OBS='처치 순서를 지켜보며 아래 체크리스트에 표시해요. 끝난 뒤 잘한 점을 한 가지 말해 줘요.';
+var RP=[
+{id:'bee',e:'🐝',name:'벌에 쏘였을 때',short:'벌 쏘임',
+ lines:['벌에 쏘였어! 너무 따가워!','움직이지 마. 벌침이 남아 있는지 볼게.','손으로 만지면 독이 더 퍼질 수 있으니 카드를 이용해야 돼.','숨쉬기가 어렵거나 답답하지 않니? 비눗물로 씻고 얼음찜질해 줄게.','선생님! 친구가 벌에 쏘였어요. 빨리 와 주세요!'],
+ steps:['딱딱한 카드로 벌침을 살살 밀어 뽑기','비눗물로 씻기','얼음찜질하기','숨쉬기 어렵거나 어지러우면 바로 병원에 가기']},
+{id:'tooth',e:'🦷',name:'이가 부러졌을 때',short:'이 부러짐',
+ lines:['넘어져서 이가 부러졌어! 아파.','놀라지 마. 부러진 이가 어디 있는지 같이 찾아보자.','이 뿌리 부분은 만지지 말고, 씻지도 말아야 해.','식염수나 우유에 담아서 지금 바로 치과에 가자.','선생님! 친구 이가 부러졌어요. 치과에 가야 해요!'],
+ steps:['빠지거나 부러진 치아를 찾기','뿌리 부분을 만지거나 씻지 않기','식염수나 우유에 담기','즉시 치과에 가기']},
+{id:'eye',e:'👁️',name:'눈에 먼지가 들어갔을 때',short:'눈 먼지',
+ lines:['눈에 먼지가 들어갔어. 따가워!','눈 비비지 마! 눈을 깜빡여서 눈물로 나오게 해 보자.','그래도 안 나오면 흐르는 물에 가볍게 씻어 보자.','계속 아프면 병원에 가자. 화학 약품이 들어갔다면 20분 이상 씻어야 해.','선생님! 친구 눈에 먼지가 들어갔어요. 도와주세요!'],
+ steps:['비비지 않고 눈을 깜빡이기','흐르는 물에 가볍게 씻기','안 빠지거나 계속 아프면 병원에 가기']},
+{id:'knee',e:'🩹',name:'무릎에 상처가 났을 때',short:'무릎 상처',
+ lines:['넘어져서 무릎에서 피가 나!','침착해. 내가 도와줄게. 먼저 깨끗한 물로 씻자.','피가 많이 나니까 거즈로 5분 이상 눌러 줄게.','거즈나 밴드가 상처에 딱 붙게 붙여 줄게. 많이 다쳤으면 병원에 가자.','선생님! 친구 무릎에서 피가 나요. 도와주세요!'],
+ steps:['깨끗한 물로 씻기','출혈이 심하면 5분 이상 눌러 지혈하기','거즈나 밴드를 밀착해서 붙이기','많이 다쳤으면 병원에 가기']}
+];
+var SELF=['침착하게 행동했어요.','모둠원이 역할을 골고루 맡았어요.','올바른 순서로 응급 처치를 했어요.','필요할 때 어른이나 119에 도움을 요청했어요.','장난스럽지 않게 진지하게 했어요.'];
+var REFLECT=['역할극을 해 보니 어떤 점이 어려웠나요?','가장 도움이 된 응급 처치 방법은 무엇이었나요?','실제로 이런 일이 생기면 어떻게 하고 싶나요?'];
+
+/* ---------- 상태 ---------- */
+var OS,TS,QS,XS,RS,RCONF=false;
+function orderInit(id){OS={sid:id||SITS[0].id,slots:[null,null,null],deck:shuffle([0,1,2]),result:null,msg:''};}
+function toolsInit(id){var s=sit(id||SITS[0].id);var d=[];for(var i=0;i<s.tools.length;i++)d.push(i);TS={sid:s.id,k:0,m:0,deck:shuffle(d),fb:null,stars:0};}
+function quizInit(){QS={list:shuffle(QUIZ).slice(0,10).map(function(q){var o=[{t:q.a,ok:true}].concat(q.w.map(function(t){return {t:t,ok:false};}));return {q:q.q,e:q.e,o:shuffle(o)};}),i:0,score:0,picked:-1};}
+function oxInit(){XS={list:shuffle(OXQ).slice(0,10),i:0,score:0,picked:null};}
+function roleInit(id){RS={sid:id||RP[0].id,names:P.names.slice(),pos:null,checks:{},self:{},text:{}};}
+var INIT={order:function(){orderInit();},tools:function(){toolsInit();},quiz:quizInit,ox:oxInit,role:function(){roleInit();},record:function(){RCONF=false;}};
+
+/* ---------- 공통 조각 ---------- */
+function top(back){return '<div class="top"><a class="brand" href="#home"><span class="mark" aria-hidden="true"></span>응급 처치 연습실</a><div class="chips">'+(back!=='record'?'<a class="back" href="#record">나의 기록</a>':'')+(back?'<a class="back" href="#home">처음으로</a>':'')+'</div></div>';}
+function chips(act,cur,done){return '<div class="chips">'+SITS.map(function(s){return '<button class="chip'+(s.id===cur?' on':'')+'" data-act="'+act+'" data-id="'+s.id+'">'+(done&&done[s.id]?'✓ ':'')+s.name+'</button>';}).join('')+'</div>';}
+function starsStr(n){return '★★★'.slice(0,n)+'☆☆☆'.slice(0,3-n);}
+function count(o){var n=0;for(var k in o){if(o[k])n++;}return n;}
+
+/* ---------- 홈 ---------- */
+function viewHome(){
+  var oc=count(P.order),tc=count(P.tools),rc=count(P.role);
+  var all=oc===SITS.length&&tc===SITS.length&&P.quiz>=8&&P.ox>=8&&rc>=1;
+  var acts=[
+   {id:'order',e:'🔢',c:'t-green',t:'순서 맞추기',d:'섞여 있는 응급 처치 단계를 올바른 순서로 놓아 봐요.',s:oc+'/'+SITS.length+' 상황 완료'},
+   {id:'tools',e:'🧰',c:'t-blue',t:'응급 처치 도구함',d:'다친 친구에게 필요한 도구를 순서대로 골라 직접 처치해 봐요.',s:tc+'/'+SITS.length+' 상황 완료'},
+   {id:'quiz',e:'❓',c:'t-sun',t:'상황 퀴즈',d:'이럴 땐 어떻게 해야 할까요? 10문제에 도전해요.',s:'최고 점수 '+P.quiz+'/10'},
+   {id:'ox',e:'⭕',c:'t-red',t:'O X 판정',d:'맞는 설명과 틀린 설명을 빠르게 가려내요.',s:'최고 점수 '+P.ox+'/10'},
+   {id:'role',e:'🎭',c:'t-green',t:'모둠 역할극',d:'역할을 뽑고 대사 카드를 보며 응급 처치 역할극을 해 봐요.',s:rc+'/'+RP.length+' 상황 완료'}
+  ];
+  var h=top(false);
+  h+='<div class="stack"><div class="homehead"><div class="hero"><h1>다친 친구를 만나면,<br>침착하게 순서대로</h1><p>초등학교 5학년 보건 「알아 두면 좋은 응급 처치」를 직접 해 보며 익혀요.</p></div>';
+  h+='<div class="alert"><span class="n">119</span><p>응급 상황에서는 혼자 당황하지 말고 주변에 도움을 구해요. 의식이 없거나 위험하면 119에 도움을 요청해요.</p></div></div>';
+  if(all)h+='<div class="badge"><span style="font-size:2rem" aria-hidden="true">🏅</span><div><b>응급 처치 지킴이 배지</b><p class="note">모든 활동의 목표를 달성했어요.</p></div></div>';
+  h+='<div class="acts">'+acts.map(function(a){return '<a class="act" href="#'+a.id+'"><div class="art '+a.c+'" aria-hidden="true">'+a.e+'</div><div class="body"><h3>'+a.t+'</h3><p>'+a.d+'</p><span class="pill">'+a.s+'</span></div></a>';}).join('')+'</div>';
+  var ts=0;for(var k in P.tools){ts+=P.tools[k]||0;}
+  h+='<div class="panel recline"><div><h3>'+(P.name?esc(P.name)+'의 기록':'나의 기록')+'</h3><p class="note">순서 '+oc+'/'+SITS.length+' · 도구함 별 '+ts+' · 퀴즈 '+P.quiz+'점 · O X '+P.ox+'점</p></div><a class="btn ghost" href="#record">나의 기록 보기</a></div>';
+  h+='<p class="note">응급 처치 뒤에는 다친 정도에 따라 병원 진료를 받아요. 이 앱은 연습용이에요.</p></div>';
+  return h;
+}
+
+/* ---------- 순서 맞추기 ---------- */
+function viewOrder(){
+  var s=sit(OS.sid);
+  var pool=OS.deck.filter(function(i){return OS.slots.indexOf(i)<0;});
+  var full=OS.slots.every(function(v){return v!==null;});
+  var ok=OS.result&&OS.result.every(Boolean);
+  var h=top(true)+'<div class="stack"><div><h2>순서 맞추기</h2><p class="lead">단계를 눌러 위에서부터 알맞은 순서대로 놓아요. 놓은 카드를 다시 누르면 빠져요.</p></div>';
+  h+=chips('osit',OS.sid,P.order);
+  h+='<div class="split"><div class="stack">';
+  h+='<div class="scene"><small>상황</small>'+s.scene+'</div>';
+  h+='<ul class="rows" aria-label="내가 놓은 순서">'+OS.slots.map(function(v,k){
+    var r=OS.result?(OS.result[k]?' good':' bad'):'';
+    return v===null?'<li><div class="slot empty"><span class="num">'+(k+1)+'</span><span>여기에 놓아요</span></div></li>':'<li><button class="slot filled'+r+'" data-act="oslot" data-k="'+k+'"'+(ok?' disabled':'')+'><span class="num">'+(k+1)+'</span><span>'+s.steps[v]+'</span></button></li>';
+  }).join('')+'</ul>';
+  h+='</div><div class="stack">';
+  if(pool.length){h+='<div><div class="label">섞여 있는 단계</div><div class="rows">'+pool.map(function(i){return '<button class="stepcard" data-act="ocard" data-i="'+i+'">'+s.steps[i]+'</button>';}).join('')+'</div></div>';}
+  if(OS.result&&!ok)h+='<div class="fb bad" role="status"><b>빨간 칸은 순서가 달라요.</b>눌러서 빼고 다시 놓아 보세요.</div>';
+  if(ok)h+='<div class="fb good" role="status"><b>정확해요! 순서를 모두 맞혔어요.</b>'+s.why+'</div>';
+  h+='<div class="actions">'+(ok?'<button class="btn" data-act="onext">다음 상황</button>':'<button class="btn" data-act="ocheck"'+(full?'':' disabled')+'>순서 확인하기</button>')+'<button class="btn ghost" data-act="oreset">처음부터</button></div></div></div></div>';
+  return h;
+}
+
+/* ---------- 도구함 ---------- */
+function viewTools(){
+  var s=sit(TS.sid);var done=TS.k>=3;
+  var h=top(true)+'<div class="stack"><div><h2>응급 처치 도구함</h2><p class="lead">도구를 눌러 처치해요. 알맞은 도구를 알맞은 순서에 써야 해요.</p></div>';
+  h+=chips('tsit',TS.sid,P.tools);
+  h+='<div class="split"><div class="stack">';
+  h+='<div class="scene"><small>상황</small>'+s.scene+'</div>';
+  h+='<div><div class="label">처치 기록</div><ul class="rows">'+s.steps.map(function(t,i){return i<TS.k?'<li class="slot good"><span class="num">'+(i+1)+'</span><span>'+t+'</span></li>':'<li class="slot empty todo"><span class="num">'+(i+1)+'</span><span>아직 하지 않았어요</span></li>';}).join('')+'</ul></div>';
+  h+='</div><div class="stack">';
+  if(TS.fb)h+='<div class="fb '+TS.fb.type+'" role="status"><b>'+(TS.fb.type==='good'?'잘했어요!':TS.fb.type==='early'?'조금 일러요':'이 방법은 안 돼요')+'</b>'+TS.fb.text+'</div>';
+  if(done){
+    h+='<div class="panel" style="text-align:center"><div class="stars" aria-label="별 '+TS.stars+'개">'+starsStr(TS.stars)+'</div><p style="margin-top:4px"><b>'+(TS.m===0?'실수 없이 처치를 마쳤어요!':'실수 '+TS.m+'번으로 처치를 마쳤어요.')+'</b></p><p class="note" style="margin-top:6px">'+s.why+'</p></div>';
+  }else{
+    h+='<div><div class="label">도구</div><div class="tools">'+TS.deck.map(function(i){var t=s.tools[i];var used=t.s>=0&&t.s<TS.k;return '<button class="tool'+(used?' used':'')+'" data-act="ttool" data-i="'+i+'"'+(used?' disabled':'')+'><span class="ti" aria-hidden="true">'+t.i+'</span><span>'+t.t+'</span></button>';}).join('')+'</div></div>';
+  }
+  h+='<div class="actions">'+(done?'<button class="btn" data-act="tnext">다음 상황</button>':'')+'<button class="btn ghost" data-act="treset">처음부터</button></div></div></div></div>';
+  return h;
+}
+
+/* ---------- 퀴즈 ---------- */
+function viewQuiz(){
+  var n=QS.list.length;
+  var h=top(true);
+  if(QS.i>=n){
+    var msg=QS.score>=9?'응급 처치 박사예요!':QS.score>=7?'잘했어요! 조금만 더 익히면 완벽해요.':'교과서를 다시 읽고 한 번 더 도전해 봐요.';
+    return h+'<div class="stack"><h2>퀴즈 결과</h2><div class="panel" style="text-align:center"><div class="big">'+QS.score+' / '+n+'</div><p style="margin-top:8px"><b>'+msg+'</b></p><p class="note" style="margin-top:4px">최고 점수 '+P.quiz+'점</p></div><div class="actions"><button class="btn" data-act="qretry">다시 도전</button><a class="btn ghost" href="#home">처음으로</a></div></div>';
+  }
+  var q=QS.list[QS.i];var answered=QS.picked>=0;
+  h+='<div class="stack"><div class="qmeta"><span>상황 퀴즈</span><span>'+(QS.i+1)+' / '+n+'</span></div><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+n+'" aria-valuenow="'+QS.i+'"><i style="width:'+(QS.i/n*100)+'%"></i></div>';
+  h+='<div class="split"><div class="stack"><p class="q">'+q.q+'</p></div><div class="stack"><div class="rows">'+q.o.map(function(o,i){
+    var c='';if(answered){if(o.ok)c=' good';else if(i===QS.picked)c=' bad';}
+    return '<button class="opt'+c+'" data-act="qopt" data-i="'+i+'"'+(answered?' disabled':'')+'>'+o.t+'</button>';
+  }).join('')+'</div>';
+  if(answered){var right=q.o[QS.picked].ok;h+='<div class="fb '+(right?'good':'bad')+'" role="status"><b>'+(right?'맞았어요!':'아쉬워요. 다시 확인해 봐요.')+'</b>'+q.e+'</div><div class="actions"><button class="btn" data-act="qnext">'+(QS.i+1>=n?'결과 보기':'다음 문제')+'</button></div>';}
+  return h+'</div></div></div>';
+}
+
+/* ---------- OX ---------- */
+function viewOx(){
+  var n=XS.list.length;var h=top(true);
+  if(XS.i>=n){
+    var msg=XS.score>=9?'맞는 설명과 틀린 설명을 정확히 가려내요!':XS.score>=7?'잘했어요! 틀린 문제를 다시 살펴봐요.':'교과서를 다시 읽고 한 번 더 도전해 봐요.';
+    return h+'<div class="stack"><h2>O X 결과</h2><div class="panel" style="text-align:center"><div class="big">'+XS.score+' / '+n+'</div><p style="margin-top:8px"><b>'+msg+'</b></p><p class="note" style="margin-top:4px">최고 점수 '+P.ox+'점</p></div><div class="actions"><button class="btn" data-act="xretry">다시 도전</button><a class="btn ghost" href="#home">처음으로</a></div></div>';
+  }
+  var q=XS.list[XS.i];var answered=XS.picked!==null;
+  function cls(v){if(!answered)return '';if(q.a===v)return ' good';if(XS.picked===v)return ' bad';return '';}
+  h+='<div class="stack"><div class="qmeta"><span>O X 판정</span><span>'+(XS.i+1)+' / '+n+'</span></div><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+n+'" aria-valuenow="'+XS.i+'"><i style="width:'+(XS.i/n*100)+'%"></i></div>';
+  h+='<div class="split"><div class="stack"><p class="lead" style="margin:0">맞는 설명은 O, 틀린 설명은 X를 눌러요.</p><p class="statement">'+q.s+'</p></div><div class="stack">';
+  h+='<div class="ox"><button class="oxb o'+cls(true)+'" data-act="xans" data-v="1"'+(answered?' disabled':'')+' aria-label="맞아요">O</button><button class="oxb x'+cls(false)+'" data-act="xans" data-v="0"'+(answered?' disabled':'')+' aria-label="틀려요">X</button></div>';
+  if(answered){var right=XS.picked===q.a;h+='<div class="fb '+(right?'good':'bad')+'" role="status"><b>'+(right?'맞았어요!':'아쉬워요. 정답은 '+(q.a?'O':'X')+'예요.')+'</b>'+q.e+'</div><div class="actions"><button class="btn" data-act="xnext">'+(XS.i+1>=n?'결과 보기':'다음 문제')+'</button></div>';}
+  return h+'</div></div></div>';
+}
+
+/* ---------- 역할극 ---------- */
+function roundOf(){for(var i=0;i<RP.length;i++){if(RP[i].id===RS.sid)return i;}return 0;}
+function roleOf(m,r){return (RS.pos[m]+r)%6;}
+function memberName(m){return RS.names[m]?esc(RS.names[m]):'모둠원 '+(m+1);}
+function viewRole(){
+  var r=roundOf();var x=RP[r];
+  var h=top(true)+'<div class="stack"><div><h2>모둠 역할극</h2><p class="lead">여섯 명이 모두 참여해요. 상황이 바뀔 때마다 역할이 한 칸씩 돌아가서, 네 가지 상황을 하면 모두가 네 가지 역할을 맡아요.</p></div>';
+  h+='<div class="chips">'+RP.map(function(p){return '<button class="chip'+(p.id===RS.sid?' on':'')+'" data-act="rsit" data-id="'+p.id+'">'+(P.role[p.id]?'✓ ':'')+p.name+'</button>';}).join('')+'</div>';
+  h+='<div class="panel stack"><h3>1. 이름 적고 역할 뽑기</h3><div class="names">'+[0,1,2,3,4,5].map(function(i){return '<div class="field"><label for="rn'+i+'">모둠원 '+(i+1)+'</label><input type="text" id="rn'+i+'" data-rname="'+i+'" maxlength="10" placeholder="이름 (선택)" value="'+esc(RS.names[i])+'" autocomplete="off"></div>';}).join('')+'</div><div class="actions"><button class="btn" data-act="rdraw">'+(RS.pos?'역할 다시 뽑기':'역할 뽑기')+'</button></div></div>';
+  if(!RS.pos)return h+'<p class="note">이름은 비워 두어도 돼요. 비워 두면 모둠원 1, 2처럼 보여요.</p></div>';
+  var who=[];for(var m=0;m<6;m++){who[roleOf(m,r)]=memberName(m);}
+  h+='<div class="stack"><h3>2. 역할 카드 ('+x.name+')</h3><div class="roles">'+ROLES.map(function(rl,i){return '<div class="role"><span class="as">'+rl+'</span><span class="who">'+who[i]+'</span>'+(i===5?'<div class="line watch">'+OBS+'</div>':'<div class="line">“'+x.lines[i]+'”</div>')+'</div>';}).join('')+'</div><p class="note">대사는 예시예요. 모둠에서 바꿔서 해도 좋아요.</p></div>';
+  h+='<div class="panel stack"><h3>역할 돌아가기 표</h3><div class="tablewrap"><table><thead><tr><th>이름</th>'+RP.map(function(p,j){return '<th'+(j===r?' class="cur"':'')+'>'+p.short+'</th>';}).join('')+'</tr></thead><tbody>'+[0,1,2,3,4,5].map(function(m){return '<tr><td class="me">'+memberName(m)+'</td>'+RP.map(function(p,j){return '<td'+(j===r?' class="cur"':'')+'>'+ROLE_S[roleOf(m,j)]+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div><p class="note">세로는 모둠원, 가로는 상황이에요. 색이 있는 칸이 지금 하는 상황이에요.</p></div>';
+  h+='<div class="split"><div class="panel stack"><h3>3. 처치 순서 확인</h3><p class="note">관찰하는 친구가 역할극에서 한 일에 체크해요.</p><div class="checks">'+x.steps.map(function(t,i){return '<label><input type="checkbox" data-rcheck="'+i+'"'+(RS.checks[i]?' checked':'')+'><span>'+t+'</span></label>';}).join('')+'</div></div>';
+  h+='<div class="panel stack"><h3>4. 소감 나누기</h3>'+REFLECT.map(function(t,i){return '<div class="field"><label for="rt'+i+'">'+t+'</label><textarea id="rt'+i+'" data-rtext="'+i+'">'+esc(RS.text[i]||'')+'</textarea></div>';}).join('')+'<div class="label" style="margin:6px 0 0">우리 모둠 돌아보기</div><div class="checks">'+SELF.map(function(t,i){return '<label><input type="checkbox" data-rself="'+i+'"'+(RS.self[i]?' checked':'')+'><span>'+t+'</span></label>';}).join('')+'</div></div></div>';
+  h+=P.role[RS.sid]?'<div class="fb good" role="status"><b>이 상황은 마쳤어요!</b>다음 상황으로 넘어가서 역할을 바꿔 해 봐요.</div>':'<div class="actions"><button class="btn" data-act="rdone">이 상황 마쳤어요</button></div>';
+  return h+'</div>';
+}
+
+/* ---------- 나의 기록 ---------- */
+function histList(a){if(!a.length)return '<p class="note" style="margin-top:6px">아직 기록이 없어요.</p>';return '<ul class="hist">'+a.slice().reverse().map(function(e){return '<li>'+e.d+' · <b>'+e.s+'</b> / 10점</li>';}).join('')+'</ul>';}
+function viewRecord(){
+  var oc=count(P.order),rc=count(P.role),ts=0;for(var k in P.tools){ts+=P.tools[k]||0;}
+  var h=top('record')+'<div class="stack"><div><h2>'+(P.name?esc(P.name)+'의 기록':'나의 기록')+'</h2><p class="lead">지금까지 해낸 활동이 모여 있어요. 이 태블릿에 저장돼요.</p></div>';
+  h+='<div class="panel"><div class="field"><label for="pname">내 이름</label><input type="text" id="pname" data-pname="1" maxlength="12" placeholder="이름을 적어요" value="'+esc(P.name||'')+'" autocomplete="off"></div></div>';
+  h+='<div class="stats">'+[['순서 맞추기',oc+' / '+SITS.length],['도구함 별',ts+' / '+SITS.length*3],['퀴즈 최고점',P.quiz+' / 10'],['O X 최고점',P.ox+' / 10'],['역할극',rc+' / '+RP.length]].map(function(x){return '<div class="stat"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>';}).join('')+'</div>';
+  h+='<div class="split"><div class="panel"><h3>상황별 기록</h3><div class="tablewrap"><table><thead><tr><th>상황</th><th>순서 맞추기</th><th>도구함</th></tr></thead><tbody>'+SITS.map(function(s){return '<tr><td>'+s.name+'</td><td>'+(P.order[s.id]?'✓ 완료':'-')+'</td><td>'+(P.tools[s.id]?'<span style="color:var(--sun)">'+starsStr(P.tools[s.id])+'</span>':'-')+'</td></tr>';}).join('')+'</tbody></table></div></div>';
+  h+='<div class="stack"><div class="panel"><h3>퀴즈 최근 기록</h3>'+histList(P.hist.quiz)+'</div><div class="panel"><h3>O X 최근 기록</h3>'+histList(P.hist.ox)+'</div><div class="panel"><h3>역할극</h3><ul class="hist">'+RP.map(function(p){return '<li>'+(P.role[p.id]?'✓ ':'- ')+p.name+'</li>';}).join('')+'</ul></div></div></div>';
+  h+=RCONF?'<div class="fb bad" role="status"><b>기록을 모두 지울까요?</b>지운 기록은 되돌릴 수 없어요.<div class="actions" style="margin-top:10px"><button class="btn" data-act="rclear" style="background:var(--red);border-color:var(--red)">모두 지우기</button><button class="btn ghost" data-act="rcancel">취소</button></div></div>':'<div class="actions"><button class="btn ghost" data-act="rask">기록 지우기</button></div>';
+  return h+'</div>';
+}
+
+var VIEWS={home:viewHome,order:viewOrder,tools:viewTools,quiz:viewQuiz,ox:viewOx,role:viewRole,record:viewRecord};
+
+/* ---------- 라우팅 ---------- */
+function current(){var h=(location.hash||'#home').slice(1);return VIEWS[h]?h:'home';}
+function render(){app.innerHTML=VIEWS[current()]();}
+function enter(){var c=current();if(INIT[c])INIT[c]();render();try{window.scrollTo(0,0);}catch(e){}}
+window.addEventListener('hashchange',enter);
+
+/* ---------- 동작 ---------- */
+function nextSit(id){for(var i=0;i<SITS.length;i++){if(SITS[i].id===id)return SITS[(i+1)%SITS.length].id;}return SITS[0].id;}
+var ACT={
+  osit:function(d){orderInit(d.id);},
+  ocard:function(d){var i=+d.i;var k=OS.slots.indexOf(null);if(k>=0){OS.slots[k]=i;OS.result=null;}},
+  oslot:function(d){OS.slots[+d.k]=null;OS.result=null;},
+  ocheck:function(){OS.result=OS.slots.map(function(v,k){return v===k;});if(OS.result.every(Boolean)){P.order[OS.sid]=true;save();}},
+  onext:function(){orderInit(nextSit(OS.sid));},
+  oreset:function(){orderInit(OS.sid);},
+  tsit:function(d){toolsInit(d.id);},
+  ttool:function(d){
+    var s=sit(TS.sid);var t=s.tools[+d.i];
+    if(t.s<0){TS.m++;TS.fb={type:'bad',text:t.why};}
+    else if(t.s===TS.k){TS.k++;TS.fb={type:'good',text:s.steps[t.s]};}
+    else if(t.s>TS.k){TS.m++;TS.fb={type:'early',text:t.early||'좋은 방법이지만 지금 할 차례가 아니에요. 앞서 해야 할 일이 남아 있어요.'};}
+    if(TS.k>=3){TS.stars=TS.m===0?3:TS.m<=2?2:1;P.tools[TS.sid]=Math.max(P.tools[TS.sid]||0,TS.stars);save();}
+  },
+  tnext:function(){toolsInit(nextSit(TS.sid));},
+  treset:function(){toolsInit(TS.sid);},
+  qopt:function(d){var i=+d.i;QS.picked=i;if(QS.list[QS.i].o[i].ok)QS.score++;},
+  qnext:function(){QS.i++;QS.picked=-1;if(QS.i>=QS.list.length){logHist('quiz',QS.score);if(QS.score>P.quiz)P.quiz=QS.score;save();}},
+  qretry:function(){quizInit();},
+  xans:function(d){var v=d.v==='1';XS.picked=v;if(v===XS.list[XS.i].a)XS.score++;},
+  xnext:function(){XS.i++;XS.picked=null;if(XS.i>=XS.list.length){logHist('ox',XS.score);if(XS.score>P.ox)P.ox=XS.score;save();}},
+  xretry:function(){oxInit();},
+  rsit:function(d){RS.sid=d.id;RS.checks={};RS.self={};RS.text={};},
+  rdraw:function(){RS.pos=shuffle([0,1,2,3,4,5]);RS.checks={};RS.self={};},
+  rdone:function(){P.role[RS.sid]=true;save();},
+  rask:function(){RCONF=true;},
+  rcancel:function(){RCONF=false;},
+  rclear:function(){P={order:{},tools:{},quiz:0,ox:0,role:{}};fix();save();RCONF=false;roleInit();}
+};
+app.addEventListener('click',function(e){
+  var t=e.target.closest?e.target.closest('[data-act]'):null;
+  if(!t||t.disabled)return;
+  var f=ACT[t.getAttribute('data-act')];
+  if(!f)return;
+  f(t.dataset);render();
+});
+app.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.hasAttribute&&t.hasAttribute('data-rname')&&RS){var ix=+t.getAttribute('data-rname');RS.names[ix]=t.value;P.names[ix]=t.value;save();}else if(t.hasAttribute&&t.hasAttribute('data-pname')){P.name=t.value;save();}
+  else if(t.hasAttribute&&t.hasAttribute('data-rtext')&&RS){RS.text[+t.getAttribute('data-rtext')]=t.value;}
+});
+app.addEventListener('change',function(e){
+  var t=e.target;if(!RS||!t.hasAttribute)return;
+  if(t.hasAttribute('data-rcheck'))RS.checks[+t.getAttribute('data-rcheck')]=t.checked;
+  else if(t.hasAttribute('data-rself'))RS.self[+t.getAttribute('data-rself')]=t.checked;
+});
+
+enter();
+})();
+</script>
+
+</body></html>
